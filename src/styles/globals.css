@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 31, 41, 55;
+  --background-end-rgb: 17, 24, 39;
+}
+
+.light {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 243, 244, 246;
+  --background-end-rgb: 229, 231, 235;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+  min-height: 100vh;
+}
+
+.json-tree-item {
+  transition: all 0.2s ease;
+}
+
+.json-tree-item:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.monaco-editor-wrapper {
+  border-radius: 8px;
+  overflow: hidden;
+}

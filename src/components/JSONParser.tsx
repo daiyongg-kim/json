@@ -1,6 +1,9 @@
 import React, { useState, useCallback, useMemo, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import JSONTreeView from './JSONTreeView';
+// AdSense imports - only InContentAd is active with real slot ID
+import { InContentAd } from './AdSense';
+// import { HeaderBannerAd, SidebarAd, MobileInlineAd, StickyBottomAd } from './AdSense';
 
 const MonacoEditor = dynamic(() => import('./MonacoEditorWrapper'), {
   ssr: false,
@@ -113,6 +116,9 @@ const JSONParser: React.FC = () => {
           </p>
         </header>
 
+        {/* Header Banner Ad - Temporarily disabled */}
+        {/* <HeaderBannerAd /> */}
+
         <div className="mb-4 flex justify-between items-center flex-wrap gap-2">
           <div className="flex gap-2 flex-wrap">
             <button
@@ -165,11 +171,17 @@ const JSONParser: React.FC = () => {
           </button>
         </div>
 
+        {/* In-Content Ad - Active with real AdSense slot */}
+        <InContentAd />
+
         {error && (
           <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
             {error}
           </div>
         )}
+
+        {/* Mobile Inline Ad - Temporarily disabled */}
+        {/* <MobileInlineAd /> */}
 
         <div className="grid md:grid-cols-2 gap-4">
           <div>
@@ -186,23 +198,28 @@ const JSONParser: React.FC = () => {
             </div>
           </div>
           
-          <div>
-            <h2 className={`text-xl font-semibold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-              Formatted Output
-            </h2>
-            <div className={`h-[600px] border rounded-lg overflow-auto p-4 ${
-              theme === 'dark' 
-                ? 'bg-gray-800 border-gray-600' 
-                : 'bg-white border-gray-300'
-            }`}>
-              {parsedJSON ? (
-                <JSONTreeView data={parsedJSON} theme={theme} />
-              ) : (
-                <div className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>
-                  {inputJSON.trim() ? 'Invalid JSON' : 'Enter JSON to see formatted output'}
-                </div>
-              )}
+          <div className="flex">
+            <div className="flex-1">
+              <h2 className={`text-xl font-semibold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                Formatted Output
+              </h2>
+              <div className={`h-[600px] border rounded-lg overflow-auto p-4 ${
+                theme === 'dark' 
+                  ? 'bg-gray-800 border-gray-600' 
+                  : 'bg-white border-gray-300'
+              }`}>
+                {parsedJSON ? (
+                  <JSONTreeView data={parsedJSON} theme={theme} />
+                ) : (
+                  <div className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>
+                    {inputJSON.trim() ? 'Invalid JSON' : 'Enter JSON to see formatted output'}
+                  </div>
+                )}
+              </div>
             </div>
+            
+            {/* Sidebar Ad - Temporarily disabled */}
+            {/* <SidebarAd theme={theme} /> */}
           </div>
         </div>
 
@@ -210,6 +227,9 @@ const JSONParser: React.FC = () => {
           <p>© 2024 JSON Parser Pro. Free online JSON tools.</p>
         </footer>
       </div>
+      
+      {/* Sticky Bottom Ad - Temporarily disabled */}
+      {/* <StickyBottomAd /> */}
     </div>
   );
 };

@@ -37,3 +37,47 @@ body {
   border-radius: 8px;
   overflow: hidden;
 }
+
+/* AdSense integration styles */
+.adsbygoogle {
+  background-color: transparent;
+  border-radius: 8px;
+}
+
+.adsbygoogle:empty {
+  display: none;
+}
+
+/* Responsive ad container adjustments */
+@media (max-width: 768px) {
+  .sticky-ad-bottom {
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+}
+
+/* Prevent layout shift during ad loading */
+.ad-placeholder {
+  min-height: 90px;
+  background-color: rgba(128, 128, 128, 0.1);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.ad-placeholder:empty {
+  display: none;
+}
+
+/* Dark mode ad adjustments */
+.light .adsbygoogle {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+body {
+  /* Add bottom padding to prevent content being hidden by sticky ads */
+  padding-bottom: 60px;
+}

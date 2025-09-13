@@ -6,13 +6,15 @@ interface MonacoEditorWrapperProps {
   onChange: (value: string | undefined) => void;
   language: string;
   theme?: string;
+  options?: any;
 }
 
 const MonacoEditorWrapper: React.FC<MonacoEditorWrapperProps> = ({ 
   value, 
   onChange, 
   language, 
-  theme = 'vs-dark' 
+  theme = 'vs-dark',
+  options = {}
 }) => {
   return (
     <Editor
@@ -30,6 +32,7 @@ const MonacoEditorWrapper: React.FC<MonacoEditorWrapperProps> = ({
         tabSize: 2,
         formatOnPaste: true,
         formatOnType: true,
+        ...options
       }}
     />
   );

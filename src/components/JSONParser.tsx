@@ -171,9 +171,6 @@ const JSONParser: React.FC = () => {
           </button>
         </div>
 
-        {/* In-Content Ad - Active with real AdSense slot */}
-        <InContentAd />
-
         {error && (
           <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
             {error}
@@ -222,6 +219,9 @@ const JSONParser: React.FC = () => {
             {/* <SidebarAd theme={theme} /> */}
           </div>
         </div>
+
+        {/* In-Content Ad - Active with real AdSense slot - Placed below JSON formatter */}
+        <InContentAd />
 
         <footer className={`mt-8 text-center ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
           <p>© 2024 JSON Parser Pro. Free online JSON tools.</p>

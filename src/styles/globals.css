@@ -42,10 +42,18 @@ body {
 .adsbygoogle {
   background-color: transparent;
   border-radius: 8px;
+  position: relative !important; /* Prevent absolute positioning */
+  display: block !important;
 }
 
 .adsbygoogle:empty {
   display: none;
+}
+
+/* Ensure ad container maintains proper layout flow */
+ins.adsbygoogle {
+  position: relative !important;
+  overflow: hidden;
 }
 
 /* Responsive ad container adjustments */

@@ -69,12 +69,20 @@ export const SidebarAd: React.FC<{ theme: 'dark' | 'light' }> = ({ theme }) => (
 );
 
 export const InContentAd: React.FC = () => (
-  <div className="my-6 text-center">
+  <div className="my-6 text-center" style={{ position: 'relative', width: '100%', minHeight: '280px' }}>
     <AdSense
       adSlot="2122694201" // Real AdSense slot ID
       adFormat="auto"
       adLayout="in-article"
-      style={{ display: 'block', textAlign: 'center', minHeight: '250px' }}
+      style={{ 
+        display: 'block', 
+        textAlign: 'center', 
+        minHeight: '280px',
+        position: 'relative',
+        width: '100%',
+        maxWidth: '1200px',
+        margin: '0 auto'
+      }}
     />
   </div>
 );

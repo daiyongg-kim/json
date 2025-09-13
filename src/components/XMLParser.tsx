@@ -1,77 +1,102 @@
 import React, { useState, useCallback, useMemo, useRef } from 'react';
 import dynamic from 'next/dynamic';
+import XMLTreeView from './XMLTreeView';
 import Link from 'next/link';
-import JSONTreeView from './JSONTreeView';
-// AdSense imports - only InContentAd is active with real slot ID
 import { InContentAd } from './AdSense';
-// import { HeaderBannerAd, SidebarAd, MobileInlineAd, StickyBottomAd } from './AdSense';
 
 const MonacoEditor = dynamic(() => import('./MonacoEditorWrapper'), {
   ssr: false,
   loading: () => <div className="flex items-center justify-center h-full bg-gray-800 rounded-lg">Loading editor...</div>
 });
 
-const JSONParser: React.FC = () => {
-  const [inputJSON, setInputJSON] = useState('');
+const XMLParser: React.FC = () => {
+  const [inputXML, setInputXML] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const parsedJSON = useMemo(() => {
-    if (!inputJSON.trim()) {
+  const parsedXML = useMemo(() => {
+    if (!inputXML.trim()) {
       setError(null);
       return null;
     }
     
     try {
-      const parsed = JSON.parse(inputJSON);
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(inputXML, 'text/xml');
+      
+      // Check for parsing errors
+      const parserError = xmlDoc.querySelector('parsererror');
+      if (parserError) {
+        const errorText = parserError.textContent || 'Invalid XML';
+        setError(errorText);
+        return null;
+      }
+      
       setError(null);
-      return parsed;
+      return xmlDoc;
     } catch (e) {
       if (e instanceof Error) {
-        const match = e.message.match(/position (\d+)/);
-        if (match) {
-          const position = parseInt(match[1]);
-          const lines = inputJSON.substring(0, position).split('\n');
-          const lineNumber = lines.length;
-          const columnNumber = lines[lines.length - 1].length + 1;
-          setError(`Error at line ${lineNumber}, column ${columnNumber}: ${e.message}`);
-        } else {
-          setError(e.message);
-        }
+        setError(e.message);
       } else {
-        setError('Invalid JSON');
+        setError('Invalid XML');
       }
       return null;
     }
-  }, [inputJSON]);
+  }, [inputXML]);
 
   const handleInputChange = useCallback((value: string | undefined) => {
-    setInputJSON(value || '');
+    setInputXML(value || '');
   }, []);
 
   const handleFormat = useCallback(() => {
-    if (parsedJSON) {
-      setInputJSON(JSON.stringify(parsedJSON, null, 2));
+    if (parsedXML) {
+      // Format XML with proper indentation
+      const serializer = new XMLSerializer();
+      const xmlString = serializer.serializeToString(parsedXML);
+      
+      // Basic XML formatting with indentation
+      let formatted = xmlString;
+      let indent = 0;
+      formatted = formatted.replace(/></g, '>\n<');
+      formatted = formatted.split('\n').map(line => {
+        let indentBefore = indent;
+        if (line.match(/^<\/\w/)) indent--;
+        else if (line.match(/^<\w[^>]*[^\/]>.*$/)) {
+          indentBefore = indent;
+          indent++;
+        } else if (line.match(/^<\w[^>]*\/>/)) {
+          // self-closing tag
+        }
+        return '  '.repeat(Math.max(0, indentBefore)) + line;
+      }).join('\n');
+      
+      setInputXML(formatted);
     }
-  }, [parsedJSON]);
+  }, [parsedXML]);
 
   const handleMinify = useCallback(() => {
-    if (parsedJSON) {
-      setInputJSON(JSON.stringify(parsedJSON));
+    if (parsedXML) {
+      const serializer = new XMLSerializer();
+      const xmlString = serializer.serializeToString(parsedXML);
+      // Remove unnecessary whitespace
+      const minified = xmlString.replace(/>\s+</g, '><').trim();
+      setInputXML(minified);
     }
-  }, [parsedJSON]);
+  }, [parsedXML]);
 
   const handleClear = useCallback(() => {
-    setInputJSON('');
+    setInputXML('');
     setError(null);
   }, []);
 
   const handleCopy = useCallback(() => {
-    if (parsedJSON) {
-      navigator.clipboard.writeText(JSON.stringify(parsedJSON, null, 2));
+    if (parsedXML) {
+      const serializer = new XMLSerializer();
+      const xmlString = serializer.serializeToString(parsedXML);
+      navigator.clipboard.writeText(xmlString);
     }
-  }, [parsedJSON]);
+  }, [parsedXML]);
 
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -84,7 +109,7 @@ const JSONParser: React.FC = () => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const content = e.target?.result as string;
-        setInputJSON(content);
+        setInputXML(content);
       };
       reader.onerror = () => {
         setError('Error reading file');
@@ -110,36 +135,33 @@ const JSONParser: React.FC = () => {
       <div className="container mx-auto px-4 py-6">
         <header className="text-center mb-8">
           <h1 className={`text-4xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-            JSON Parser Pro
+            XML Parser Pro
           </h1>
           <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
-            Parse, Format, Validate, and Beautify JSON Online
+            Parse, Format, Validate, and Beautify XML Online
           </p>
         </header>
-
-        {/* Header Banner Ad - Temporarily disabled */}
-        {/* <HeaderBannerAd /> */}
 
         <div className="mb-4 flex justify-between items-center flex-wrap gap-2">
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={handleFormat}
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-              disabled={!parsedJSON}
+              disabled={!parsedXML}
             >
               Format
             </button>
             <button
               onClick={handleMinify}
               className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
-              disabled={!parsedJSON}
+              disabled={!parsedXML}
             >
               Minify
             </button>
             <button
               onClick={handleCopy}
               className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors"
-              disabled={!parsedJSON}
+              disabled={!parsedXML}
             >
               Copy
             </button>
@@ -154,7 +176,7 @@ const JSONParser: React.FC = () => {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".json"
+                accept=".xml"
                 onChange={handleFileUpload}
                 className="hidden"
               />
@@ -173,14 +195,14 @@ const JSONParser: React.FC = () => {
               🔄 Converters
             </Link>
             <Link 
-              href="/xml"
+              href="/"
               className={`px-4 py-2 rounded transition-colors ${
                 theme === 'dark'
-                  ? 'bg-orange-600 text-white hover:bg-orange-700'
-                  : 'bg-orange-500 text-white hover:bg-orange-600'
+                  ? 'bg-blue-600 text-white hover:bg-blue-700'
+                  : 'bg-blue-500 text-white hover:bg-blue-600'
               }`}
             >
-              📋 XML Parser
+              📄 JSON Parser
             </Link>
             <button
               onClick={toggleTheme}
@@ -201,19 +223,16 @@ const JSONParser: React.FC = () => {
           </div>
         )}
 
-        {/* Mobile Inline Ad - Temporarily disabled */}
-        {/* <MobileInlineAd /> */}
-
         <div className="grid md:grid-cols-2 gap-4">
           <div>
             <h2 className={`text-xl font-semibold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-              Input JSON
+              Input XML
             </h2>
             <div className="h-[600px] border border-gray-600 rounded-lg overflow-hidden">
               <MonacoEditor
-                value={inputJSON}
+                value={inputXML}
                 onChange={handleInputChange}
-                language="json"
+                language="xml"
                 theme={theme === 'dark' ? 'vs-dark' : 'vs'}
               />
             </div>
@@ -229,33 +248,27 @@ const JSONParser: React.FC = () => {
                   ? 'bg-gray-800 border-gray-600' 
                   : 'bg-white border-gray-300'
               }`}>
-                {parsedJSON ? (
-                  <JSONTreeView data={parsedJSON} theme={theme} />
+                {parsedXML ? (
+                  <XMLTreeView xmlDoc={parsedXML} theme={theme} />
                 ) : (
                   <div className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>
-                    {inputJSON.trim() ? 'Invalid JSON' : 'Enter JSON to see formatted output'}
+                    {inputXML.trim() ? 'Invalid XML' : 'Enter XML to see formatted output'}
                   </div>
                 )}
               </div>
             </div>
-            
-            {/* Sidebar Ad - Temporarily disabled */}
-            {/* <SidebarAd theme={theme} /> */}
           </div>
         </div>
 
-        {/* In-Content Ad - Active with real AdSense slot - Placed below JSON formatter */}
+        {/* In-Content Ad - Active with real AdSense slot - Placed below XML formatter */}
         <InContentAd />
 
         <footer className={`mt-8 text-center ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-          <p>© 2024 JSON Parser Pro. Free online JSON tools.</p>
+          <p>© 2024 XML Parser Pro. Free online XML tools.</p>
         </footer>
       </div>
-      
-      {/* Sticky Bottom Ad - Temporarily disabled */}
-      {/* <StickyBottomAd /> */}
     </div>
   );
 };
 
-export default JSONParser;
+export default XMLParser;

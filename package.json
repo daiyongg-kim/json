@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "node test/run-tests.js node",
+    "test:browser": "node test/run-tests.js browser",
+    "test:all": "node test/run-tests.js all",
+    "test:files": "node test/run-tests.js files"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.6.0",
